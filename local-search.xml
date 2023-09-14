@@ -4,6 +4,19 @@
   
   
   <entry>
+    <title>CSAPP——二进制炸弹——汇编指令积累</title>
+    <link href="/2023/09/14/CSAPP%E2%80%94%E2%80%94%E4%BA%8C%E8%BF%9B%E5%88%B6%E7%82%B8%E5%BC%B9%E2%80%94%E2%80%94%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4%E7%A7%AF%E7%B4%AF/"/>
+    <url>/2023/09/14/CSAPP%E2%80%94%E2%80%94%E4%BA%8C%E8%BF%9B%E5%88%B6%E7%82%B8%E5%BC%B9%E2%80%94%E2%80%94%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4%E7%A7%AF%E7%B4%AF/</url>
+    
+    <content type="html"><![CDATA[<h2 id="phase-3"><a href="#phase-3" class="headerlink" title="phase_3:"></a>phase_3:</h2><pre><code class="hljs">JG   ;有符号大于则跳转(前&gt;后)JA   ;无符号大于则跳转( “无符号”一词表示只能包含正数的变量。)je   ;相等跳转 (左操作数=右操作数)jmpq *0x402390(,%rax,8)   ;用于直接跳转到存储在的绝对地址 8 * %rax + 0x402390cmpl source dest   ;source&lt;dest则CF=1,否则CF=00x8 (%rsp)   ;表示“获取栈上距离栈指针 %rsp 8 个字节的位置，然后获取该地址处的值。lea eax，[addr]   ;将表达式addr的值放入eax寄存器</code></pre><figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">cmpl</span>   $<span class="hljs-number">0</span>x7,<span class="hljs-number">0</span>x8(%rsp)# 第一个数必须小于<span class="hljs-number">7</span>，否则爆炸<br><span class="hljs-attribute">ja</span>     <span class="hljs-number">400</span>fad# 引爆炸弹<br></code></pre></td></tr></table></figure><p>以上两句汇编等同于 if (*rsp+8) &gt; 7, 跳转到0x400fad， 因此第一个数必须不大于7。</p><figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">jmpq</span> *<span class="hljs-number">0</span>x402470(,%rax,<span class="hljs-number">8</span>)<br></code></pre></td></tr></table></figure><p>是一个间接跳转指令, 可以看出这段代码是典型的switch语句，跳转表就存在于0x402470。%rax取值为[0, 7]，代表switch语句中8条不同的case。</p><h2 id="phase-4"><a href="#phase-4" class="headerlink" title="phase_4:"></a>phase_4:</h2><pre><code class="hljs">    Test   ;普遍的用法是用来测试一方寄存器是否为空：</code></pre><figure class="highlight subunit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs subunit"><span class="hljs-keyword">test </span>ecx, ecx<br>jz somewhere<br></code></pre></td></tr></table></figure><p>如果ecx为零，设置ZF零标志为1，jz跳转。</p><pre><code class="hljs">    JBE命令时，如果此时的CF标志位或者ZF标志位为1，跳转，其他不跳转    SHR   ;（右移）指令使目的操作数逻辑右移一位，最高位用 0 填充。    SAR   ;（算术右移）指令将目的操作数进行算术右移：    lea (%rax,%rsi,1),%ecx   ;作用是ecx=rax+rsi*1    cmp %edi,%ecx     jle 400ff2      ;若ecx≤edi，则跳转到400ff2    cmp %edi,%ecx    jge 401007     ；若ecx≥edi，则跳转到401007</code></pre><h2 id="Phase-5"><a href="#Phase-5" class="headerlink" title="Phase_5"></a>Phase_5</h2><pre><code class="hljs">    xor eax,eax</code></pre><p>eax异或eax，相同为0，并把结果存放到eax，简单说该语句就是想eax寄存器清零。<br></p><p><strong>windows x64寄存器命名规则</strong></p><pre><code class="hljs">    前缀R    表示64位寄存器。例如RAX。    前缀E    表示32位寄存器。例如EAX    后缀L    表示寄存器的低8位    后缀H    表示寄存器的9~16位</code></pre><p><img src="https://github.com/xhsy0314/Task/assets/84487619/86dfc5a1-ba28-4d9a-902e-75206d2d355c" alt="image"></p>]]></content>
+    
+    
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>系统论文——How (and How Not) to Write a Good Systems Paper</title>
     <link href="/2023/09/14/%E7%B3%BB%E7%BB%9F%E8%AE%BA%E6%96%87%E2%80%94%E2%80%94How-and-How-Not-to-Write-a-Good-Systems-Paper/"/>
     <url>/2023/09/14/%E7%B3%BB%E7%BB%9F%E8%AE%BA%E6%96%87%E2%80%94%E2%80%94How-and-How-Not-to-Write-a-Good-Systems-Paper/</url>
