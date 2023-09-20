@@ -224,6 +224,39 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
+        <a href="/2023/09/20/Pwn%E2%80%94%E2%80%94ret2syscall/" target="_self">
+          Pwn——ret2syscall
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/20/Pwn%E2%80%94%E2%80%94ret2syscall/" target="_self">
+        <div>
+          介绍控制程序执行系统调用，获取 shell 判断如果没有system和开启了NX（栈不可执行）保护可以用（有system最好用ret2text，方便省事，没开NX直接ret2shellcode） 步骤32位和64位的syscall原理都是一样，只有传参和调用存在差异，以下一起说，做个对比。  32位系统调用使用 “ int 80h “ 64位系统调用使用 “ syscall “ （汇编代码就是sy
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-09-20 15:45" pubdate>
+              2023-09-20
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
         <a href="/2023/09/18/Pwn%E2%80%94%E2%80%94ROP%E8%BF%9B%E9%98%B6%E7%BB%83%E4%B9%A0/" target="_self">
           Pwn——ROP进阶练习
         </a>
@@ -506,39 +539,6 @@
             <i class="iconfont icon-date"></i>
             <time datetime="2023-09-14 13:55" pubdate>
               2023-09-14
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h2 class="index-header">
-        
-        <a href="/2023/09/13/first-article/" target="_self">
-          first article
-        </a>
-      </h2>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/13/first-article/" target="_self">
-        <div>
-          一级标题代码测试： 1print(&quot;Hello&quot;)    图片测试：  引用测试：  这是一条引用  二级标题无序列表测试：  哈哈 嘿嘿 吼吼  三级标题四级标题
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-09-13 21:30" pubdate>
-              2023-09-13
             </time>
           </div>
         
