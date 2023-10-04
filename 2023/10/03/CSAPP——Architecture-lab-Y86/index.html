@@ -16,21 +16,23 @@
   <meta name="author" content="John Doe">
   <meta name="keywords" content="">
   
-    <meta name="description" content="Part A??:??????? Y86-64 ?? ??????example.c???????c???Y86-64?????? ????: 123456#ys?????yo#?sim&#x2F;misc ??????.&#x2F;yas sum.ys#??????#?sim&#x2F;misc .&#x2F;yis sum.yo  ???make???: 12345gcc -O2 -fcommon -c yas-grammar.cg">
+    <meta name="description" content="Part AArch Lab ??????A ????????????Y86-64??,????Y86-64?????;? B ???,?????????????SEQ;C ?????????,??????????????????????????? 1234567sim  - misc    # ??? ???(isa)&#x2F;???(yas)&#x2F;???(yis)  - seq     # ??????">
 <meta property="og:type" content="article">
-<meta property="og:title" content="CSAPP——Architecture lab(Y86)">
+<meta property="og:title" content="CSAPP��Architecture lab(Y86)">
 <meta property="og:url" content="http://example.com/2023/10/03/CSAPP%E2%80%94%E2%80%94Architecture-lab-Y86/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="Part A??:??????? Y86-64 ?? ??????example.c???????c???Y86-64?????? ????: 123456#ys?????yo#?sim&#x2F;misc ??????.&#x2F;yas sum.ys#??????#?sim&#x2F;misc .&#x2F;yis sum.yo  ???make???: 12345gcc -O2 -fcommon -c yas-grammar.cg">
+<meta property="og:description" content="Part AArch Lab ??????A ????????????Y86-64??,????Y86-64?????;? B ???,?????????????SEQ;C ?????????,??????????????????????????? 1234567sim  - misc    # ??? ???(isa)&#x2F;???(yas)&#x2F;???(yis)  - seq     # ??????">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/arch-1.png">
 <meta property="article:published_time" content="2023-10-03T13:23:09.000Z">
-<meta property="article:modified_time" content="2023-10-04T02:54:43.230Z">
+<meta property="article:modified_time" content="2023-10-04T03:42:52.395Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/images/arch-1.png">
   
   
   
-  <title>CSAPP——Architecture lab(Y86) - Hexo</title>
+  <title>CSAPP��Architecture lab(Y86) - Hexo</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -196,7 +198,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="CSAPP——Architecture lab(Y86)"></span>
+            <span id="subtitle" data-typed-text="CSAPP��Architecture lab(Y86)"></span>
           
         </div>
 
@@ -219,7 +221,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          490 字
+          3.3k 字
         
       </span>
     
@@ -230,7 +232,7 @@
         
         
         
-          5 分钟
+          28 分钟
         
       </span>
     
@@ -267,20 +269,79 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">CSAPP——Architecture lab(Y86)</h1>
+            <h1 id="seo-header">CSAPP��Architecture lab(Y86)</h1>
             
             
               <div class="markdown-body">
                 
-                <h2 id="Part-A"><a href="#Part-A" class="headerlink" title="Part A"></a>Part A</h2><p><strong>??:??????? Y86-64 ??</strong></p>
-<p>??????example.c???????c???Y86-64??????</p>
-<p>????:</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">ys?????yo</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">?sim/misc ??????</span><br>./yas sum.ys<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">??????</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">?sim/misc ./yis sum.yo</span><br></code></pre></td></tr></table></figure>
-
-<p>???make???:</p>
-<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs awk">gcc -O2 -fcommon -c yas-grammar.c<br>gcc -Wall -O2 -fcommon yas-grammar.o yas.o isa.o -lfl -o yas<br><span class="hljs-regexp">/usr/</span>bin/ld: ??? -lfl: ?????????<br>collect2: error: ld returned <span class="hljs-number">1</span> <span class="hljs-keyword">exit</span> status<br>make: *** [Makefile:<span class="hljs-number">32</span>:yas] ?? <span class="hljs-number">1</span>           <br></code></pre></td></tr></table></figure>
-<p>??????bison flex??,?????�-fcommon�?????Makefiles?</p>
+                <h2 id="Part-A"><a href="#Part-A" class="headerlink" title="Part A"></a>Part A</h2><p>Arch Lab ??????A ????????????Y86-64??,????Y86-64?????;? B ???,?????????????SEQ;C ?????????,???????????????????????????</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">sim<br>  - misc    <span class="hljs-comment"># ??? ???(isa)/???(yas)/???(yis)</span><br>  - <span class="hljs-built_in">seq</span>     <span class="hljs-comment"># ?????? hcl ???</span><br>  - pipe    <span class="hljs-comment"># ??????? hcl ???</span><br>  - ptest   <span class="hljs-comment"># ????</span><br>  - y86-code <span class="hljs-comment"># Y86-64 ????????</span><br><br></code></pre></td></tr></table></figure>
+
+<p>????,??Y86-64??????examples.c??????????????????????,????????</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">/* linked list element */</span><br><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">ELE</span> &#123;<br>    <span class="hljs-type">long</span> val;<br>    <span class="hljs-keyword">struct</span> <span class="hljs-title class_">ELE</span> *next;<br>&#125; *list_ptr;<br></code></pre></td></tr></table></figure>
+
+<p>?????????,???????Y86-64????:</p>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs perl"><span class="hljs-comment"># movq i--&gt;r: ????????...</span><br>irmovq, rrmovq, mrmovq, rmmovq<br><br><span class="hljs-comment"># Opq</span><br>addq, subq, andq, xorq<br><br><span class="hljs-comment"># ?? jXX</span><br>jmp, jle, jl, je, jne, jge, jg<br><br><span class="hljs-comment"># ???? cmovXX</span><br>cmovle, cmovl, cmove, cmovne, cmovge, cmovg<br><br>call, ret<br>pushq, popq<br><br><span class="hljs-comment"># ???????</span><br>halt<br><br><span class="hljs-comment"># ???</span><br>%rax, %rcx, %rdx<br>%rbx, %rsp, %rbp<br>%rsi, %rdi, %r8<br>%r9, %r10, %r11<br>%r12, %r13, %r14<br></code></pre></td></tr></table></figure>
+
+<p><strong>sum_list</strong></p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs kotlin"><span class="hljs-comment">/* sum_list - Sum the elements of a linked list */</span><br>long sum_list(list_ptr ls)<br>&#123;<br>    long <span class="hljs-keyword">val</span> = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">while</span> (ls) &#123;<br>        <span class="hljs-keyword">val</span> += ls-&gt;<span class="hljs-keyword">val</span>;<br>        ls = ls-&gt;next;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">val</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>?????????</p>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs perl"><span class="hljs-comment"># sum_list - Sum the elements of a linked list</span><br><span class="hljs-comment"># author: Deconx</span><br><br><span class="hljs-comment"># Execution begins at address 0</span><br>        .pos <span class="hljs-number">0</span><br>        irmovq stack, %rsp      <span class="hljs-comment"># Set up stack pointer</span><br>        call main               <span class="hljs-comment"># Execute main program</span><br>        halt                    <span class="hljs-comment"># Terminate program</span><br><br><span class="hljs-comment"># Sample linked list</span><br>        .align <span class="hljs-number">8</span><br>ele1:<br>        .quad <span class="hljs-number">0x00a</span><br>        .quad ele2<br>ele2:<br>        .quad <span class="hljs-number">0x0b0</span><br>        .quad ele3<br>ele3:<br>        .quad <span class="hljs-number">0xc00</span><br>        .quad <span class="hljs-number">0</span><br><br>main:<br>        irmovq ele1,%rdi<br>        call sum_list   <span class="hljs-comment"># sum_list(ele1)</span><br>        ret<br><br><span class="hljs-comment"># long sum_list(list_ptr ls)</span><br><span class="hljs-comment"># start in %rdi</span><br>sum_list:<br>        irmovq $0, %rax<br>        jmp test<br><br>loop:<br>        mrmov<span class="hljs-string">q (%rdi)</span>, %rsi<br>        addq %rsi, %rax<br>        mrmovq <span class="hljs-number">8</span>(%rdi), %rdi<br><br>test:<br>        andq %rdi, %rdi         <span class="hljs-comment">#?andq???CC</span><br>        jne loop<br>        ret<br><br><span class="hljs-comment"># Stack starts here and grows to lower addresses</span><br>        .pos <span class="hljs-number">0x200</span><br>stack:<br></code></pre></td></tr></table></figure>
+
+<p><strong>????</strong></p>
+<ul>
+<li>main:<br>main????????????</li>
+</ul>
+<p>???????????,????sum_list??</p>
+<p>??rdi??????????,???????</p>
+<p>??????????,??????????????????,???????????????????</p>
+<figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs gcode">irmovq ele<span class="hljs-number">1</span>,<span class="hljs-meta">%</span>rdi<br>   <span class="hljs-keyword">call</span> sum_list	<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>sum_list????</li>
+</ul>
+<p>sum_list?????????,???????</p>
+<p>???????????,?????????,???????????????0,??????rax???,????????????????,?rax???????????????,??????rax?????,????while????????</p>
+<figure class="highlight cos"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cos">xorq <span class="hljs-built_in">%rax</span>, <span class="hljs-built_in">%rax</span><br>jmp test<br></code></pre></td></tr></table></figure>
+<ul>
+<li>??loop</li>
+</ul>
+<p>??????????</p>
+<p>1.????</p>
+<p>rdi?????,?????????,?????????????????????rax?</p>
+<p>??????,?Y86-64?,add???????????????,????????????????,?????????????????????,???????????,??%r10???</p>
+<p>2.???????????</p>
+<p>????????????</p>
+<p>??.quad,??4?word,?8???????,????????????????<br><img src="/images/arch-1.png" srcset="/img/loading.gif" lazyload></p>
+<p>??R[rdi] &#x3D; ele1</p>
+<p>????R[rdi] &#x3D; ele2</p>
+<p>?ele2 &#x3D; M[ele1 + 8] &#x3D; M[R[rdi] + 8]</p>
+<p>?mrmovq 8(%rdi), %rdi</p>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs perl">mrmov<span class="hljs-string">q (%rdi)</span>, %r10<br>addq %r10, %rax<br>mrmovq <span class="hljs-number">8</span>(%rdi), %rdi<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>?????????test</li>
+</ul>
+<p>???????????,?????????????rdi????????0??</p>
+<p>?????rdi????,??????rdi??,???????,??????????,????0,????0,??0?????loop,??return</p>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs llvm"># addq <span class="hljs-variable">%rdi</span><span class="hljs-punctuation">,</span> <span class="hljs-variable">%rdi</span> ?????????<br>andq <span class="hljs-variable">%rdi</span><span class="hljs-punctuation">,</span> <span class="hljs-variable">%rdi</span><br>jne loop<br><span class="hljs-keyword">ret</span><br></code></pre></td></tr></table></figure>
+
+<hr>
+<p>???64????,???????????32???,???????????????,????????????????????TT</p>
+<p>??????????32????,?????????????????????????????</p>
+<p>???????32?sum.ys:</p>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs perl"><span class="hljs-comment"># sum_list - Sum the elements of a linked list</span><br><span class="hljs-comment"># author: Deconx (modified for 32-bit)</span><br><br><span class="hljs-comment"># Execution begins at address 0</span><br>.pos <span class="hljs-number">0</span><br>irmovl stack, %esp     <span class="hljs-comment"># Set up stack pointer</span><br>call main              <span class="hljs-comment"># Execute main program</span><br>halt                   <span class="hljs-comment"># Terminate program</span><br><br><span class="hljs-comment"># Sample linked list</span><br>.align <span class="hljs-number">4</span><br>ele1:<br>.long <span class="hljs-number">0x00a</span><br>.long ele2<br>ele2:<br>.long <span class="hljs-number">0x0b0</span><br>.long ele3<br>ele3:<br>.long <span class="hljs-number">0xc00</span><br>.long <span class="hljs-number">0</span><br><br>main:<br>irmovl ele1, %edi<br>call sum_list   <span class="hljs-comment"># sum_list(ele1)</span><br>ret<br><br><span class="hljs-comment"># long sum_list(list_ptr ls)</span><br><span class="hljs-comment"># start in %edi</span><br>sum_list:<br>irmovl $0, %eax<br>jmp test<br><br>loop:<br>mrmovl (%edi), %esi<br>addl %esi, %eax<br>mrmovl <span class="hljs-number">4</span>(%edi), %edi<br><br>test:<br>andl %edi, %edi         <span class="hljs-comment"># ?andl???CC</span><br>jne loop<br>ret<br><br><span class="hljs-comment"># Stack starts here and grows to lower addresses</span><br>.pos <span class="hljs-number">0x200</span><br>stack:<br><br></code></pre></td></tr></table></figure>
+
+<p>??????:</p>
+<ul>
+<li>64???? %rax?%rdi?%rsi?%rsp ????????32???? %eax?%edi?%esi?%esp ??</li>
+<li>???????64?? .quad ???32?? .long?</li>
+<li>????? irmovq ??? irmovl,??????32?????</li>
+<li>?? mrmovq,addq,andq ???,????? mrmovl,addl,andl,???32????</li>
+<li>???? jmp,call,ret ??????</li>
+</ul>
+<p>?????????????????????</p>
+
                 
               </div>
             
@@ -297,7 +358,7 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>CSAPP——Architecture lab(Y86)</div>
+      <div>CSAPP��Architecture lab(Y86)</div>
       <div>http://example.com/2023/10/03/CSAPP——Architecture-lab-Y86/</div>
     </div>
     <div class="license-meta">
