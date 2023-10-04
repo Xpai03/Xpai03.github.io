@@ -27,7 +27,7 @@
 <meta property="og:image" content="http://example.com/images/arch-2.png">
 <meta property="og:image" content="http://example.com/images/arch-3.png">
 <meta property="article:published_time" content="2023-10-04T03:47:58.000Z">
-<meta property="article:modified_time" content="2023-10-04T07:54:17.418Z">
+<meta property="article:modified_time" content="2023-10-04T08:07:51.530Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/images/arch-1.png">
@@ -234,7 +234,7 @@
         
         
         
-          99 分钟
+          101 分钟
         
       </span>
     
@@ -423,7 +423,7 @@
 <figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">make VERSION=<span class="hljs-keyword">full</span><br></code></pre></td></tr></table></figure>
 
 <p>报错，注释掉seq文件夹中Makefile有关GUI的代码。</p>
-<p>重新执行。</p>
+<p>重新执行。<br>还是报错，<br>注释掉&#x2F;sim&#x2F;pipe&#x2F;psim.c 806、807 line和&#x2F;sim&#x2F;seq&#x2F;ssim.c 844、845 line。即：有源代码中有matherr的一行和它的下一行<br>这样能编译成功了。</p>
 <ul>
 <li>运行一个简单的Y86-64 程序</li>
 </ul>
@@ -450,7 +450,7 @@
 
 <figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs awk">fuzz@ubuntu:~<span class="hljs-regexp">/Architecture Lab/</span>archlab-handout<span class="hljs-regexp">/sim/</span>ptest$ cd ..<span class="hljs-regexp">/ptest; make SIM=../</span>seq/ssim TFLAGS=-i<br>.<span class="hljs-regexp">/optest.pl -s ../</span>seq/ssim -i<br>Simulating with ..<span class="hljs-regexp">/seq/</span>ssim<br>  All <span class="hljs-number">58</span> ISA Checks Succeed<br>.<span class="hljs-regexp">/jtest.pl -s ../</span>seq/ssim -i<br>Simulating with ..<span class="hljs-regexp">/seq/</span>ssim<br>  All <span class="hljs-number">96</span> ISA Checks Succeed<br>.<span class="hljs-regexp">/ctest.pl -s ../</span>seq/ssim -i<br>Simulating with ..<span class="hljs-regexp">/seq/</span>ssim<br>  All <span class="hljs-number">22</span> ISA Checks Succeed<br>.<span class="hljs-regexp">/htest.pl -s ../</span>seq/ssim -i<br>Simulating with ..<span class="hljs-regexp">/seq/</span>ssim<br>  All <span class="hljs-number">756</span> ISA Checks Succeed<br><br></code></pre></td></tr></table></figure>
 
-<p>至此通过了实验材料中的所有测试用例。</p>
+<p>至此通过了实验材料中的所有测试用例。<br>以上是64bit，32bit所有修改的地方都一样，只不过指令变成了iaddl，则每个修改的地方变成了IIADDL。</p>
 
                 
               </div>
