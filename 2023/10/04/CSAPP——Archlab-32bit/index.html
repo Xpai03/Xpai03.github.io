@@ -24,8 +24,10 @@
 <meta property="og:description" content="Part AArch Lab 分为三部分。A 部分需要我们写一些简单的Y86-64程序，从而熟悉Y86-64工具的使用；在 B 部分中，我们要用一个新的指令来扩展SEQ；C 部分是本实验的核心，我们要通过理解流水线的过程以及利用新的指令来优化程序。 1234567sim  - misc    # 包含了 指令集(isa)&#x2F;汇编器(yas)&#x2F;模拟器(yis)  - seq     # 顺序执行模式">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/images/arch-1.png">
+<meta property="og:image" content="http://example.com/images/arch-2.png">
+<meta property="og:image" content="http://example.com/images/arch-3.png">
 <meta property="article:published_time" content="2023-10-04T03:47:58.000Z">
-<meta property="article:modified_time" content="2023-10-04T07:04:35.146Z">
+<meta property="article:modified_time" content="2023-10-04T07:54:17.418Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/images/arch-1.png">
@@ -221,7 +223,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          7.8k 字
+          12k 字
         
       </span>
     
@@ -232,7 +234,7 @@
         
         
         
-          66 分钟
+          99 分钟
         
       </span>
     
@@ -390,6 +392,65 @@
 <ul>
 <li>这个程序的主要功能是从 src 复制数据到 dest，并计算复制的数据的异或和。它使用了循环来遍历数组，并将每个元素复制到目标数组中，同时计算异或和。程序的执行过程中，通过寄存器来保存和操作数据，最终返回异或和的值。</li>
 </ul>
+<h2 id="Part-B"><a href="#Part-B" class="headerlink" title="Part B"></a>Part B</h2><p><strong>任务：拓展SEQ处理器，即修改seq-full.hcl文件以支持iaddq。</strong></p>
+<p>iaddq指令：将立即数与寄存器相加<br><img src="/images/arch-2.png" srcset="/img/loading.gif" lazyload><br>按照顺序修改五个阶段，添加iaddq</p>
+<h3 id="修改seq-full-hcl文件"><a href="#修改seq-full-hcl文件" class="headerlink" title="修改seq-full.hcl文件"></a>修改seq-full.hcl文件</h3><p><strong>取指阶段</strong></p>
+<p>instr_valid：判断指令是否合法，当然应该加上。修改后为</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">bool instr_valid</span> = icode in <br>    &#123; INOP, IHALT, IRRMOVQ, IIRMOVQ, IRMMOVQ, IMRMOVQ,<br>           IOPQ, IJXX, ICALL, IRET, IPUSHQ, IPOPQ, IIADDQ &#125;;<br></code></pre></td></tr></table></figure>
+<p>need_regids：判断指令是否包括寄存器指示符字节，当然也应该加上</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">bool need_regids</span> =<br>    icode in &#123; IRRMOVQ, IOPQ, IPUSHQ, IPOPQ, <br>             IIRMOVQ, IRMMOVQ, IMRMOVQ, IIADDQ &#125;;<br><br></code></pre></td></tr></table></figure>
+<p>need_valC：判断指令是否包括常数字，还是要加上</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">bool need_valC</span> =<br>    icode in &#123; IIRMOVQ, IRMMOVQ, IMRMOVQ, IJXX, ICALL, IIADDQ &#125;;<br></code></pre></td></tr></table></figure>
+<p><strong>译码和写回阶段</strong></p>
+<p>srcB：赋为产生valB的寄存器。译码阶段要从rA, rB 指明的寄存器读为 valA, valB，而iaddq有一个rB，于是有以下修改</p>
+<figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs ada">word srcB = [<br>    icode <span class="hljs-keyword">in</span> &#123; IOPQ, IRMMOVQ, IMRMOVQ, IIADDQ  &#125; : <span class="hljs-type">rB</span>;<br>    icode <span class="hljs-keyword">in</span> &#123; IPUSHQ, IPOPQ, ICALL, IRET &#125; : <span class="hljs-type">RRSP</span>;<br>    <span class="hljs-number">1</span> : <span class="hljs-type">RNONE</span>;  # Don<span class="hljs-symbol">&#x27;t</span> need register<br>];<br></code></pre></td></tr></table></figure>
+<p>dst_E：表明写端口 E 的目的寄存器，计算出来的值valE将放在那里。最终结果要存放在rB中，所以要修改</p>
+<figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs ada">word dstE = [<br>    icode <span class="hljs-keyword">in</span> &#123; IRRMOVQ &#125; &amp;&amp; Cnd : <span class="hljs-type">rB</span>;<br>    icode <span class="hljs-keyword">in</span> &#123; IIRMOVQ, IOPQ, IIADDQ &#125; : <span class="hljs-type">rB</span>;<br>    icode <span class="hljs-keyword">in</span> &#123; IPUSHQ, IPOPQ, ICALL, IRET &#125; : <span class="hljs-type">RRSP</span>;<br>    <span class="hljs-number">1</span> : <span class="hljs-type">RNONE</span>;  # Don<span class="hljs-symbol">&#x27;t</span> write any register<br>];<br></code></pre></td></tr></table></figure>
+<p><strong>执行阶段</strong></p>
+<p>执行阶段ALU要对aluA和aluB进行计算，计算格式为：aluB OP aluA。所以aluaA可以是valA和valC或者+-8，aluaB只能是valB。而iaddq执行阶段进行的运算是valB + valC，于是可知修改</p>
+<figure class="highlight nestedtext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs nestedtext"><span class="hljs-comment">## Select input A to ALU</span><br><span class="hljs-attribute">word aluA = [</span><br><span class="hljs-attribute">    icode in &#123; IRRMOVQ, IOPQ &#125;</span><span class="hljs-punctuation"> :</span> <span class="hljs-string">valA;</span><br>    <span class="hljs-attribute">icode in &#123; IIRMOVQ, IRMMOVQ, IMRMOVQ, IIADDQ &#125;</span><span class="hljs-punctuation"> :</span> <span class="hljs-string">valC;</span><br>    <span class="hljs-attribute">icode in &#123; ICALL, IPUSHQ &#125;</span><span class="hljs-punctuation"> :</span> <span class="hljs-string">-8;</span><br>    <span class="hljs-attribute">icode in &#123; IRET, IPOPQ &#125;</span><span class="hljs-punctuation"> :</span> <span class="hljs-string">8;</span><br>    <span class="hljs-comment"># Other instructions don&#x27;t need ALU</span><br><span class="hljs-attribute">];</span><br><span class="hljs-attribute"></span><br><span class="hljs-attribute">## Select input B to ALU</span><br><span class="hljs-attribute">word aluB = [</span><br><span class="hljs-attribute">    icode in &#123; IRMMOVQ, IMRMOVQ, IOPQ, ICALL, </span><br><span class="hljs-attribute">              IPUSHQ, IRET, IPOPQ, IIADDQ &#125;</span><span class="hljs-punctuation"> :</span> <span class="hljs-string">valB;</span><br>    <span class="hljs-attribute">icode in &#123; IRRMOVQ, IIRMOVQ &#125;</span><span class="hljs-punctuation"> :</span> <span class="hljs-string">0;</span><br>    <span class="hljs-comment"># Other instructions don&#x27;t need ALU</span><br>];<br></code></pre></td></tr></table></figure>
+
+<p>set_cc：判断是否应该更新条件码寄存器，这里应该加上</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">bool set_cc</span> = icode in &#123; IOPQ, IIADDQ &#125;;<br></code></pre></td></tr></table></figure>
+
+<p><strong>访存阶段</strong></p>
+<p>iaddq没有访存阶段，无需修改</p>
+<p><strong>更新PC阶段</strong></p>
+<p>iaddq不涉及转移等操作，也无需修改</p>
+<h3 id="测试SEQ"><a href="#测试SEQ" class="headerlink" title="测试SEQ"></a>测试SEQ</h3><ul>
+<li>在&#x2F;sim&#x2F;seq目录下执行：</li>
+</ul>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">make VERSION=<span class="hljs-keyword">full</span><br></code></pre></td></tr></table></figure>
+
+<p>报错，注释掉seq文件夹中Makefile有关GUI的代码。</p>
+<p>重新执行。</p>
+<ul>
+<li>运行一个简单的Y86-64 程序</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">./ssim -t ../y86-code/asumi.yo<br></code></pre></td></tr></table></figure>
+<p><img src="/images/arch-3.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li>标准测试</li>
+</ul>
+<p>运行一个标准检查程序</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">cd</span> ../y86-code; make testssim<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs gradle">fuzz@ubuntu:~<span class="hljs-regexp">/Architecture Lab/</span>archlab-handout<span class="hljs-regexp">/sim/</span>seq$ cd ../y86-code; make testssim<br>..<span class="hljs-regexp">/seq/</span>ssim -t asum.yo &gt; asum.seq<br>..<span class="hljs-regexp">/seq/</span>ssim -t asumr.yo &gt; asumr.seq<br>..<span class="hljs-regexp">/seq/</span>ssim -t cjr.yo &gt; cjr.seq<br>..<span class="hljs-regexp">/seq/</span>ssim -t j-cc.yo &gt; j-cc.seq<br>..<span class="hljs-regexp">/seq/</span>ssim -t poptest.yo &gt; poptest.seq<br>..<span class="hljs-regexp">/seq/</span>ssim -t pushquestion.yo &gt; pushquestion.seq<br>..<span class="hljs-regexp">/seq/</span>ssim -t pushtest.yo &gt; pushtest.seq<br>..<span class="hljs-regexp">/seq/</span>ssim -t prog1.yo &gt; prog1.seq<br>..<span class="hljs-regexp">/seq/</span>ssim -t prog2.yo &gt; prog2.seq<br>..<span class="hljs-regexp">/seq/</span>ssim -t prog3.yo &gt; prog3.seq<br>..<span class="hljs-regexp">/seq/</span>ssim -t prog4.yo &gt; prog4.seq<br>..<span class="hljs-regexp">/seq/</span>ssim -t prog5.yo &gt; prog5.seq<br>..<span class="hljs-regexp">/seq/</span>ssim -t prog6.yo &gt; prog6.seq<br>..<span class="hljs-regexp">/seq/</span>ssim -t prog7.yo &gt; prog7.seq<br>..<span class="hljs-regexp">/seq/</span>ssim -t prog8.yo &gt; prog8.seq<br>..<span class="hljs-regexp">/seq/</span>ssim -t ret-hazard.yo &gt; ret-hazard.seq<br><span class="hljs-keyword">grep</span> <span class="hljs-string">&quot;ISA Check&quot;</span> *.seq<br>asum.seq:ISA Check Succeeds<br>asumr.seq:ISA Check Succeeds<br>cjr.seq:ISA Check Succeeds<br>j-cc.seq:ISA Check Succeeds<br>poptest.seq:ISA Check Succeeds<br>prog1.seq:ISA Check Succeeds<br>prog2.seq:ISA Check Succeeds<br>prog3.seq:ISA Check Succeeds<br>prog4.seq:ISA Check Succeeds<br>prog5.seq:ISA Check Succeeds<br>prog6.seq:ISA Check Succeeds<br>prog7.seq:ISA Check Succeeds<br>prog8.seq:ISA Check Succeeds<br>pushquestion.seq:ISA Check Succeeds<br>pushtest.seq:ISA Check Succeeds<br>ret-hazard.seq:ISA Check Succeeds<br>rm asum.seq asumr.seq cjr.seq j-cc.seq poptest.seq pushquestion.seq pushtest.seq prog1.seq prog2.seq prog3.seq prog4.seq prog5.seq prog6.seq prog7.seq prog8.seq ret-hazard.seq<br><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>回归测试</li>
+</ul>
+<p>测试除iaddq的所有指令:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">cd</span> ../ptest; make SIM=../seq/ssim<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs awk">fuzz@ubuntu:~<span class="hljs-regexp">/Architecture Lab/</span>archlab-handout<span class="hljs-regexp">/sim/y</span>86-code$ cd ..<span class="hljs-regexp">/ptest; make SIM=../</span>seq/ssim<br>.<span class="hljs-regexp">/optest.pl -s ../</span>seq/ssim <br>Simulating with ..<span class="hljs-regexp">/seq/</span>ssim<br>  All <span class="hljs-number">49</span> ISA Checks Succeed<br>.<span class="hljs-regexp">/jtest.pl -s ../</span>seq/ssim <br>Simulating with ..<span class="hljs-regexp">/seq/</span>ssim<br>  All <span class="hljs-number">64</span> ISA Checks Succeed<br>.<span class="hljs-regexp">/ctest.pl -s ../</span>seq/ssim <br>Simulating with ..<span class="hljs-regexp">/seq/</span>ssim<br>  All <span class="hljs-number">22</span> ISA Checks Succeed<br>.<span class="hljs-regexp">/htest.pl -s ../</span>seq/ssim <br>Simulating with ..<span class="hljs-regexp">/seq/</span>ssim<br>  All <span class="hljs-number">600</span> ISA Checks Succeed<br><br></code></pre></td></tr></table></figure>
+
+<p>专门测试iaddq指令:</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs routeros">cd <span class="hljs-built_in">..</span>/ptest; make <span class="hljs-attribute">SIM</span>=../seq/ssim <span class="hljs-attribute">TFLAGS</span>=-i<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs awk">fuzz@ubuntu:~<span class="hljs-regexp">/Architecture Lab/</span>archlab-handout<span class="hljs-regexp">/sim/</span>ptest$ cd ..<span class="hljs-regexp">/ptest; make SIM=../</span>seq/ssim TFLAGS=-i<br>.<span class="hljs-regexp">/optest.pl -s ../</span>seq/ssim -i<br>Simulating with ..<span class="hljs-regexp">/seq/</span>ssim<br>  All <span class="hljs-number">58</span> ISA Checks Succeed<br>.<span class="hljs-regexp">/jtest.pl -s ../</span>seq/ssim -i<br>Simulating with ..<span class="hljs-regexp">/seq/</span>ssim<br>  All <span class="hljs-number">96</span> ISA Checks Succeed<br>.<span class="hljs-regexp">/ctest.pl -s ../</span>seq/ssim -i<br>Simulating with ..<span class="hljs-regexp">/seq/</span>ssim<br>  All <span class="hljs-number">22</span> ISA Checks Succeed<br>.<span class="hljs-regexp">/htest.pl -s ../</span>seq/ssim -i<br>Simulating with ..<span class="hljs-regexp">/seq/</span>ssim<br>  All <span class="hljs-number">756</span> ISA Checks Succeed<br><br></code></pre></td></tr></table></figure>
+
+<p>至此通过了实验材料中的所有测试用例。</p>
 
                 
               </div>
