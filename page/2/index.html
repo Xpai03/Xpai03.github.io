@@ -224,6 +224,39 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h2 class="index-header">
         
+        <a href="/2023/09/18/32-64%E4%BD%8Dpayload%E6%9E%84%E9%80%A0%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/" target="_self">
+          32/64位payload构造注意事项
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/09/18/32-64%E4%BD%8Dpayload%E6%9E%84%E9%80%A0%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/" target="_self">
+        <div>
+          堆栈平衡问题32位中，没有堆栈平衡一说，而64位中有。payload中的堆栈平衡简单来说，就是要保证payload的字节数是16的倍数。而p64是将地址转为8字节的字符串，所以payload中得保证p64是偶数倍，就能满足堆栈平衡。因此对于写完payload后还是单数倍的p64时，就需要加单数个【当然加1个就行】p64(ret)，【ret代表ret指令的地址，可以直接在IDA里面任意找一个，也可以
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-09-18 13:27" pubdate>
+              2023-09-18
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h2 class="index-header">
+        
         <a href="/2023/09/18/Pwn%E2%80%94%E2%80%94%E8%BE%93%E5%87%BAflag-txt/" target="_self">
           Pwn——输出flag.txt
         </a>
