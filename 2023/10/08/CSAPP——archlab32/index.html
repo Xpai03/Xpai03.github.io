@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/images/archlab-1.png">
 <meta property="article:published_time" content="2023-10-08T11:40:08.000Z">
-<meta property="article:modified_time" content="2023-10-09T05:41:22.735Z">
+<meta property="article:modified_time" content="2023-10-16T07:59:01.553Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/images/archlab-1.png">
@@ -221,7 +221,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          8k 字
+          9.9k 字
         
       </span>
     
@@ -232,7 +232,7 @@
         
         
         
-          68 分钟
+          83 分钟
         
       </span>
     
@@ -371,7 +371,13 @@
 <li>更新pc阶段</li>
 </ul>
 <p>更新PC寄存器默认使用的就是valP，而iaddl使用的正是valP，所以不需要修改</p>
-<h3 id="Part-C"><a href="#Part-C" class="headerlink" title="Part C"></a>Part C</h3><p>可以优化的有两部分</p>
+<h3 id="Part-C"><a href="#Part-C" class="headerlink" title="Part C"></a>Part C</h3><p>PIPE 是使用了转发技术的流水线化的Y86处理器。它相比 Part B 增加了流水线寄存器和流水线控制逻辑。</p>
+<p>ncopy函数将一个长度为len的整型数组src复制到一个不重叠的数组dst，并返回src中正数的个数。C 语言代码如下</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * ncopy - copy src to dst, returning number of positive ints</span><br><span class="hljs-comment"> * contained in src array.</span><br><span class="hljs-comment"> */</span><br><span class="hljs-function"><span class="hljs-type">word_t</span> <span class="hljs-title">ncopy</span><span class="hljs-params">(<span class="hljs-type">word_t</span> *src, <span class="hljs-type">word_t</span> *dst, <span class="hljs-type">word_t</span> len)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">word_t</span> count = <span class="hljs-number">0</span>;<br>    <span class="hljs-type">word_t</span> val;<br><br>    <span class="hljs-keyword">while</span> (len &gt; <span class="hljs-number">0</span>) &#123;<br>    val = *src++;<br>    *dst++ = val;<br>    <span class="hljs-keyword">if</span> (val &gt; <span class="hljs-number">0</span>)<br>        count++;<br>    len--;<br>    &#125;<br>    <span class="hljs-keyword">return</span> count;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>原汇编代码：</p>
+<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><code class="hljs clean">#<span class="hljs-comment">/* $begin ncopy-ys */</span><br>##################################################################<br># ncopy.ys - Copy a src block <span class="hljs-keyword">of</span> len ints to dst.<br># Return the number <span class="hljs-keyword">of</span> positive ints (&gt;<span class="hljs-number">0</span>) contained <span class="hljs-keyword">in</span> src.<br>#<br># Include your name and ID here.<br>#<br># Describe how and why you modified the baseline <span class="hljs-keyword">code</span>.<br>#<br>##################################################################<br># Do not modify this portion<br># Function prologue.<br>ncopy:	pushl %ebp		# Save old frame pointer<br>	rrmovl %esp,%ebp	# Set up new frame pointer<br>	pushl %esi		# Save callee-save regs<br>	pushl %ebx<br>	pushl %edi<br>	mrmovl <span class="hljs-number">8</span>(%ebp),%ebx	# src<br>	mrmovl <span class="hljs-number">16</span>(%ebp),%edx	# len<br>	mrmovl <span class="hljs-number">12</span>(%ebp),%ecx	# dst<br><br>##################################################################<br># You can modify this portion<br>	# Loop header<br>	xorl %eax,%eax		# count = <span class="hljs-number">0</span>;<br>	andl %edx,%edx		# len &lt;= <span class="hljs-number">0</span>?<br>	jle Done		# <span class="hljs-keyword">if</span> so, goto Done:<br><br>Loop:	mrmovl (%ebx), %esi	# read val <span class="hljs-keyword">from</span> src...<br>	rmmovl %esi, (%ecx)	# ...and store it to dst<br>	andl %esi, %esi		# val &lt;= <span class="hljs-number">0</span>?<br>	jle Npos		# <span class="hljs-keyword">if</span> so, goto Npos:<br>	irmovl $<span class="hljs-number">1</span>, %edi<br>	addl %edi, %eax		# count++<br>Npos:	irmovl $<span class="hljs-number">1</span>, %edi<br>	subl %edi, %edx		# len--<br>	irmovl $<span class="hljs-number">4</span>, %edi<br>	addl %edi, %ebx		# src++<br>	addl %edi, %ecx		# dst++<br>	andl %edx,%edx		# len &gt; <span class="hljs-number">0</span>?<br>	jg Loop			# <span class="hljs-keyword">if</span> so, goto Loop:<br>##################################################################<br># Do not modify the following section <span class="hljs-keyword">of</span> <span class="hljs-keyword">code</span><br># Function epilogue.<br>Done:<br>	popl %edi               # Restore callee-save registers<br>	popl %ebx<br>	popl %esi<br>	rrmovl %ebp, %esp<br>	popl %ebp<br>	ret<br>##################################################################<br># Keep the following label at the end <span class="hljs-keyword">of</span> your function<br>End:<br>#<span class="hljs-comment">/* $end ncopy-ys */</span><br><br></code></pre></td></tr></table></figure>
+<p>可以优化的有两部分</p>
 <pre><code class="hljs">    ncopy.ys：汇编文件
     pipe-full.c：HCL描述文件
 </code></pre>
