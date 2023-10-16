@@ -4,6 +4,19 @@
   
   
   <entry>
+    <title>CSAPP——CacheLab</title>
+    <link href="/2023/10/16/CSAPP%E2%80%94%E2%80%94CacheLab/"/>
+    <url>/2023/10/16/CSAPP%E2%80%94%E2%80%94CacheLab/</url>
+    
+    <content type="html"><![CDATA[<h2 id="实验概述"><a href="#实验概述" class="headerlink" title="实验概述"></a>实验概述</h2><p>本实验将帮助我们了解缓存对C语言性能的影响，在做实验之前我首先将教材第六章看了一遍，大致对缓存的知识有了些概念，在此先贴点基础知识。</p><p><strong>存储器层次结构</strong>：<br><img src="/images/cache-1.png"></p><p><strong>高速缓存cache 结构</strong><br><img src="/images/cache-2.png"></p><p>Cache 类似于一个二维数组，它有 2^S 组，每组有 E 行，每行存储的字节也是固定的。其中，每行都有一个有效位，和一个标记位。想要查找到对应的字节，我们的地址需要三部分组成：</p><pre><code class="hljs">    s，索引位，找到对应的组序号    tag，标记位，在组中的每一行进行匹配，判断能否命中    b，块偏移，表明在找到的行中的具体位置。本实验不考虑块便宜，完全可以忽略。</code></pre><p>那么，Cache 中的有效位是干什么的呢？判断该行是否为空。这里有一个概念：<strong>冷不命中</strong>，表示该缓存块为空造成的不命中。而一旦确定不命中不是冷不命中，那么就需要考虑行替换的问题了。我认为，行替换关乎着 Cache 的效率，是 Cache 设计的核心, 本实验采用<strong>LRU（最近最少使用）</strong>替换策略。</p><h3 id="Part-A-Writing-a-Cache-Simulator"><a href="#Part-A-Writing-a-Cache-Simulator" class="headerlink" title="Part A: Writing a Cache Simulator"></a>Part A: Writing a Cache Simulator</h3><p>在 A 部分中，您将在 csim.c 中编写一个缓存模拟器，它将 valgrind 内存跟踪作为输入，在此跟踪上模拟高速缓存的命中&#x2F;未命中行为，并输出命中，未命中和驱逐总数。实验为我们提供了参考缓存模拟器的二进制可执行文件，称为 csim-ref，它在 valgrind 跟踪文件上模拟具有任意大小和关联性的缓存行为。 它使用选择要逐出的缓存行时的 <strong>LRU（最近最少使用）</strong>替换策略。</p>]]></content>
+    
+    
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>CSAPP——archlab32</title>
     <link href="/2023/10/08/CSAPP%E2%80%94%E2%80%94archlab32/"/>
     <url>/2023/10/08/CSAPP%E2%80%94%E2%80%94archlab32/</url>
